@@ -1,1 +1,21 @@
-@import "./base.css"
+@import "./base.css";
+
+
+#app {
+  display: flex;
+  flex-direction: column;
+  place-content: center;
+  place-items: center;
+  height: 100vh;
+  margin-top: -10rem;
+  transition: all 0.53s linear;
+}
+
+
+@media screen and (min-width:1024px) {
+  #app {
+    flex-direction: row;
+    gap: 2rem;
+    margin-top: -5rem;
+  }
+}
