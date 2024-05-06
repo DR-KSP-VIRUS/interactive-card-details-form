@@ -1,21 +1,24 @@
 @import "./base.css";
 
-
 #app {
   display: flex;
   flex-direction: column;
-  place-content: center;
-  place-items: center;
   height: 100vh;
-  margin-top: -10rem;
+  margin-top: -1.5rem;
   transition: all 0.53s linear;
+  background: url("/images/bg-main-mobile.png");
+  background-repeat: no-repeat;
+  background-size: contain;
 }
-
 
 @media screen and (min-width:1024px) {
   #app {
     flex-direction: row;
-    gap: 2rem;
-    margin-top: -5rem;
+    gap: 3rem;
+    background: url("/images/bg-main-desktop.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 100vh;
+    margin-top: 0rem;
   }
 }
