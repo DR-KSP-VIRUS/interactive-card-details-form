@@ -333,7 +333,7 @@ label {
     }
 }
 
-@media screen and (min-width:1024px) and (max-height:600px){
+@media screen and (min-width:1024px) and (max-height:672px){
     .cards{
         top: -15%;
         left: 18%;
