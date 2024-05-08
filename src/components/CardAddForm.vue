@@ -1,26 +1,11 @@
 <template>
     <div class="cards">
-        <Card>
-            <picture>
-                <img class="card-back" src="/images/bg-card-back.png" alt="card back">
-                <p class="cvc">{{ cvc ? cvc:'000' }}</p>
-            </picture>
-        </Card>
-        <Card>
-            <picture>
-                <img class="card-front" src="/images/bg-card-front.png" alt="card front">
-                <picture class="card-logo">
-                    <img src="/images/card-logo.svg" alt="card logo">
-                    <div class="card-front-text">
-                        <p>{{ cardNumber ? cardNumber : '0000 0000 0000 0000 0000' }}</p>
-                        <div class="card-details">
-                            <p>{{ cardHolderName ? cardHolderName: 'Jane Appleseed' }}</p>
-                            <p>{{ month ? month : '00' }}/{{ year ? year : '00'}}</p>
-                        </div>
-                    </div>
-                </picture>
-            </picture>
-        </Card>
+        <CardBack :cvc="cvc" />
+        <CardFront
+            :cardHolderName="cardHolderName" 
+            :cardNumber="cardNumber"
+            :month="month" :year="year"
+        />
     </div>
     <div class="form-wrapper">
         <form v-if="valid" class="form" @submit.prevent="handleSubmit">
@@ -30,17 +15,17 @@
                     :class="error.cardHolderName === '' ? 'input-control' :'input-control error-field'" 
                     id="holdername" 
                     placeholder="e.g. Jane Appleseed" 
-                    @blur="isValid"
+                    @blur="() => !cardHolderName ? error.cardHolderName = 'can\'t be blank': error.cardHolderName='' "
                 />
                 <span>{{ error.cardHolderName }}</span>
             </div>
             <div class="input-wrapper">
                 <label for="cardnumber" :class="error.cardNumber === '' ? '': 'error-text'">Card Number</label>
                 <input type="text" v-model="cardNumber" 
-                    :class="!validateNumbers && error.cardNumber === '' ? 'input-control': 'input-control error-field' "  
+                    :class="!validateCardNumber && error.cardNumber === '' ? 'input-control': 'input-control error-field' "  
                     id="cardnumber" 
                     placeholder="e.g. 1234 5678 9123 0000"
-                    @blur="isValid" 
+                    @blur="() => !cardNumber ? error.cardNumber = 'can\'t be blank': validateCardNumber ? error.cardNumber='Wrong format, only numbers':error.cardNumber='' " 
                 />
                 <span>{{ error.cardNumber }}</span>
             </div>
@@ -49,12 +34,12 @@
                     <label for="expdate" :class="error.year==='' || error.month === '' ? '':'error-text'">Exp. Date (MM/YY)</label>
                     <div class="input-group">
                         <input type="text" id="expdate" v-model="month" 
-                            :class="error.month==='' ? 'input-control':'input-control error-field'" placeholder="MM" 
-                            @blur="isValid"
+                            :class="!validateMonth && error.month==='' ? 'input-control':'input-control error-field'" placeholder="MM" 
+                            @blur="() => !month ? error.month = 'can\'t be blank':validateMonth ? error.month='Wrong format, only numbers': error.month='' "
                         />
                         <input type="text" name="year" v-model="year"   
-                            :class="error.year==='' ? 'input-control':'input-control error-field'" placeholder="YY" 
-                            @blur="isValid"
+                            :class="!validateYear && error.year==='' ? 'input-control':'input-control error-field'" placeholder="YY" 
+                            @blur="() => !year ? error.year='can\'t be blank':validateYear ? error.year='Wrong format, only numbers': error.year='' "
                         />
                     </div>
                     <span>{{ error.month || error.year }}</span>
@@ -62,23 +47,24 @@
                 <div class="long">
                     <label for="cvc" :class="error.cvc === '' ? '': 'error-text'">CVC</label>
                     <input type="text" id="cvc" 
-                        :class="error.cvc==='' ? 'input-control':'input-control error-field'"  
+                        :class="!validateCvc && error.cvc==='' ? 'input-control':'input-control error-field'"  
                         placeholder="e.g. 123" v-model="cvc" 
-                        @blur="isValid"
+                        @blur="() => !cvc ? error.cvc = 'can\'t be blank':validateCvc? error.cvc ='Wrong format only numbers': error.cvc='' "
                     />
                     <span>{{ error.cvc }}</span>
                 </div>
             </div>
-            <button class="btn-confirm">Confirm</button>
+            <button type="submit" class="btn-confirm">Confirm</button>
         </form>
         <CardCompleted v-else @continue="handleFormReset"/>
     </div>
 </template>
-<!-- :class="error.cardNumber === '' ? 'input-control' :'input-contro error-field'" -->
+
 <script setup>
 import { ref, computed } from 'vue';
-import { validateField } from '@/helpers/validate';
-import Card from './Card.vue';
+import { validateField, numberField } from '@/helpers/validate';
+import CardFront from './CardFront.vue';
+import CardBack from './CardBack.vue';
 import CardCompleted from './CardCompleted.vue';
 
 const cvc = ref('');
@@ -96,19 +82,45 @@ const error = ref({
 })
 
 const validateFields = () => {
-    error.value.month = !validateField(month.value) ? "Can't be blank": month.value.length != 2 ? 'Max is 2 digits': !(+month.value >= 1 && +month.value <= 12) ? 'Month is be between 01 and 12':'';
-    error.value.year = !validateField(year.value) ? "Can't be blank": year.value.length != 2 ? 'Max is 2 digits': '';
+    error.value.month =  !validateField(month.value) ? 'can\'t be blank': month.value.length != 2 ? 'Max is 2 digits': !(+month.value >= 1 && +month.value <= 12) ? 'Month is be between 01 and 12':'';
+    error.value.year = !validateField(year.value) ? "Can't be blank": year.value.length != 2 ? 'Max is 2 digits': validateYear.value ? 'Wrong format, only numbers':'';
     error.value.cardHolderName = validateField(cardHolderName.value) ? '' : "Can't be blank";
-    error.value.cardNumber = !validateField(cardNumber.value) ? "Can't be blank": cardNumber.value.length != 19 ? 'Max is 12 digits 3 spaces within 4 digits': '';
-    error.value.cvc = !validateField(cvc.value) ? "can't be blank": cvc.value.length != 3 ? 'Max is 3 digits': '';
+    error.value.cardNumber = !validateField(cardNumber.value) ? "Can't be blank": cardNumber.value.length != 19 ? 'Max is 12 digits 3 spaces within 4 digits': validateCardNumber.value?'Wrong format, only numbers':'';
+    error.value.cvc = !validateField(cvc.value) ? 'can\'t be blank': cvc.value.length != 3 ? 'Max is 3 digits': validateCvc.value ? 'Wrong format, only format':'';
 
 }
 
 const isValid = () => {
     validateFields();
+    // check that all errors fields are empty and return true
     return Object.entries(error.value).every((entry)=>entry[1] === '');
-
+    
 }
+
+const validateCardNumber = computed(() => {
+    if (validateField(cardNumber.value)) {
+        return numberField(cardNumber.value) ? error.value.cardNumber='':error.value.cardNumber = 'Wrong format, only numbers';
+    }
+});
+
+const validateMonth = computed(() => {
+    if (validateField(month.value)) {
+        return numberField(month.value) ? error.value.month = '' : error.value.month = 'Wrong format, only numbers';
+    }
+});
+
+
+const validateYear = computed(() => {
+    if (validateField(year.value)) {
+        return numberField(year.value)? error.value.year = '' : error.value.year = 'Wrong format, only numbers';
+    }
+});
+
+const validateCvc = computed(() => {
+    if (validateField(cvc.value)) {
+        return numberField(cvc.value) ? error.value.cvc = '' : error.value.cvc = 'Wrong format, only numbers';
+    }
+});
 
 const handleSubmit = () => {
     if (isValid()) {
@@ -127,13 +139,6 @@ const handleFormReset = () => {
     valid.value = true;
 }
 
-const validateNumbers = computed(() => {
-    if (validateField(cardNumber.value)) {
-        let numberValues = parseInt(cardNumber.value);
-        console.log(/[\d*]/.test(numberValues));
-    }
-})
-
 </script>
 
 <style scoped>
@@ -145,74 +150,6 @@ const validateNumbers = computed(() => {
     transition: all .54s ease;
 }
 
-.cards picture > img {
-    height: 9rem;
-    transition: all .54s ease;
-}
-
-
-picture {
-    display: flex;
-    flex-direction: column;
-    place-items: center;
-}
-
-.cvc{
-    position: absolute;
-    top: 3.8rem;
-    right: 2.5rem;
-    color: var(--white);
-    transition: all .54s ease;
-}
-
-
-.card-front {
-    position: absolute;
-    top: 5.1rem;
-    left: -2rem;
-    width: 100%;
-    transition: all .54s ease;
-}
-
-.card-logo {
-    position: absolute;
-    height: 1rem;
-    top: 6rem;
-    left: -7rem;
-    width: 100%;
-    transition: all .54s ease;
-}
-
-.card-front-text{
-    padding: 2rem;
-    color: var(--white);
-    text-transform: uppercase;
-    position: absolute;
-    left:4rem ;
-    top: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    font-size: 1.1rem;
-    transition: all .54s ease;
-}
-
-.card-details {
-    display: flex;
-    place-content: space-between;
-    margin-top: 1rem;
-    font-size: .7rem;
-    transition: all .54s ease;
-}
-
-.card-back, 
-.card-front {
-    box-shadow: 0 0px 0px var(--very-dark-violet),
-    0 0px 0px var(--very-dark-violet),
-    0 1px 10px var(--very-dark-violet),
-    0 0px 0px var(--very-dark-violet);
-    border-radius: .7rem;
-}
 
 .form-wrapper{
     background-color: var(--white);

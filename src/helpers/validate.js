@@ -5,3 +5,7 @@ export const validateField = (field) => {
         return false;
     }
 }
+
+export const numberField = (field) => {
+    return /[0-9' ']/.test(field.at(-1));
+}
