@@ -23,45 +23,116 @@
         </Card>
     </div>
     <div class="form-wrapper">
-        <form  class="form" @submit.prevent="">
+        <form v-if="valid" class="form" @submit.prevent="handleSubmit">
             <div class="input-wrapper">
-                <label for="holdername">Cardholder Name</label>
-                <input type="text" v-model="cardHolderName" class="input-control" id="holdername" placeholder="e.g. Jane Appleseed">
+                <label for="holdername" :class="error.cardHolderName === '' ?'':'error-text'">Cardholder Name</label>
+                <input type="text" v-model="cardHolderName"
+                    :class="error.cardHolderName === '' ? 'input-control' :'input-control error-field'" 
+                    id="holdername" 
+                    placeholder="e.g. Jane Appleseed" 
+                    @blur="isValid"
+                />
+                <span>{{ error.cardHolderName }}</span>
             </div>
             <div class="input-wrapper">
-                <label for="cardnumber">Card Number</label>
-                <input type="text" v-model="cardNumber" class="input-control" id="cardnumber" placeholder="e.g. 1234 5678 9123 0000">
+                <label for="cardnumber" :class="error.cardNumber === '' ? '': 'error-text'">Card Number</label>
+                <input type="text" v-model="cardNumber" 
+                    :class="!validateNumbers && error.cardNumber === '' ? 'input-control': 'input-control error-field' "  
+                    id="cardnumber" 
+                    placeholder="e.g. 1234 5678 9123 0000"
+                    @blur="isValid" 
+                />
+                <span>{{ error.cardNumber }}</span>
             </div>
             <div class="input-group-wrapper">
                 <div class="short">
-                    <label for="expdate">Exp. Date (MM/YY)</label>
+                    <label for="expdate" :class="error.year==='' || error.month === '' ? '':'error-text'">Exp. Date (MM/YY)</label>
                     <div class="input-group">
-                        <input type="text" id="expdate" v-model="month" class="input-control" placeholder="MM">
-                        <input type="text" name="year" v-model="year" class="input-control"
-                        placeholder="YY">
+                        <input type="text" id="expdate" v-model="month" 
+                            :class="error.month==='' ? 'input-control':'input-control error-field'" placeholder="MM" 
+                            @blur="isValid"
+                        />
+                        <input type="text" name="year" v-model="year"   
+                            :class="error.year==='' ? 'input-control':'input-control error-field'" placeholder="YY" 
+                            @blur="isValid"
+                        />
                     </div>
+                    <span>{{ error.month || error.year }}</span>
                 </div>
                 <div class="long">
-                    <label for="cvc">CVC</label>
-                    <input type="text" id="cvc" class="input-control" 
-                    placeholder="e.g. 123" v-model="cvc">
+                    <label for="cvc" :class="error.cvc === '' ? '': 'error-text'">CVC</label>
+                    <input type="text" id="cvc" 
+                        :class="error.cvc==='' ? 'input-control':'input-control error-field'"  
+                        placeholder="e.g. 123" v-model="cvc" 
+                        @blur="isValid"
+                    />
+                    <span>{{ error.cvc }}</span>
                 </div>
             </div>
             <button class="btn-confirm">Confirm</button>
         </form>
+        <CardCompleted v-else @continue="handleFormReset"/>
     </div>
 </template>
-
+<!-- :class="error.cardNumber === '' ? 'input-control' :'input-contro error-field'" -->
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { validateField } from '@/helpers/validate';
 import Card from './Card.vue';
+import CardCompleted from './CardCompleted.vue';
 
 const cvc = ref('');
 const cardHolderName = ref('');
 const cardNumber = ref('');
-const month = ref('')
-const year = ref('')
+const month = ref('');
+const year = ref('');
+const valid = ref(true);
+const error = ref({
+    month: '',
+    year: '',
+    cvc: '',
+    cardHolderName: '',
+    cardNumber: '',
+})
 
+const validateFields = () => {
+    error.value.month = !validateField(month.value) ? "Can't be blank": month.value.length != 2 ? 'Max is 2 digits': !(+month.value >= 1 && +month.value <= 12) ? 'Month is be between 01 and 12':'';
+    error.value.year = !validateField(year.value) ? "Can't be blank": year.value.length != 2 ? 'Max is 2 digits': '';
+    error.value.cardHolderName = validateField(cardHolderName.value) ? '' : "Can't be blank";
+    error.value.cardNumber = !validateField(cardNumber.value) ? "Can't be blank": cardNumber.value.length != 19 ? 'Max is 12 digits 3 spaces within 4 digits': '';
+    error.value.cvc = !validateField(cvc.value) ? "can't be blank": cvc.value.length != 3 ? 'Max is 3 digits': '';
+
+}
+
+const isValid = () => {
+    validateFields();
+    return Object.entries(error.value).every((entry)=>entry[1] === '');
+
+}
+
+const handleSubmit = () => {
+    if (isValid()) {
+        valid.value = false;
+    } else {
+        valid.value = true;
+    }
+}
+
+const handleFormReset = () => {
+    cvc.value = '';
+    cardHolderName.value = '';
+    cardNumber.value = '';
+    year.value = '';
+    month.value = '';
+    valid.value = true;
+}
+
+const validateNumbers = computed(() => {
+    if (validateField(cardNumber.value)) {
+        let numberValues = parseInt(cardNumber.value);
+        console.log(/[\d*]/.test(numberValues));
+    }
+})
 
 </script>
 
@@ -162,6 +233,10 @@ picture {
     margin: .5rem 0;
 }
 
+span{
+    color: var(--red);
+}
+
 .input-control{
     width: 100%;
     border: 1px solid var(--dark-grayish-violet);
@@ -222,6 +297,14 @@ label {
     border-block-start-color: var(--left-gradient);
     border-inline-start-color: var(--left-gradient);
     border-inline-end-color: var(--right-gradient);
+}
+
+.error-field {
+    border: 1px solid var(--red);
+}
+
+.error-text {
+    color: var(--red);
 }
 
 
