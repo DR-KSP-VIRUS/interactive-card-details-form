@@ -9,6 +9,9 @@
   background: url("/images/bg-main-mobile.png");
   background-repeat: no-repeat;
   background-size: contain;
+  font-family: "Space Grotesk",
+    sans-serif;
+  font-weight: 500;
 }
 
 @media screen and (min-width:1024px) {

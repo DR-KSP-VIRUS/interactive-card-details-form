@@ -34,7 +34,7 @@ const props = defineProps({
 
 <style scoped>
 .cards picture > img {
-    height: 9rem;
+    height: 9.5rem;
     transition: all .54s ease;
 }
 
@@ -66,22 +66,21 @@ picture {
     position: absolute;
     height: 1rem;
     top: 6rem;
-    left: -7rem;
+    left: -7.5rem;
     width: 100%;
     transition: all .54s ease;
 }
 
 .card-front-text{
-    padding: 2rem;
+    padding: 1.5rem 2rem;
     color: var(--white);
     text-transform: uppercase;
     position: absolute;
-    left:4rem ;
-    top: 1.5rem;
+    left:4.5rem ;
+    top: 2rem;
     display: flex;
     flex-direction: column;
     width: 100%;
-    font-size: 1.1rem;
     transition: all .54s ease;
 }
 
@@ -92,8 +91,7 @@ picture {
     font-size: .7rem;
     transition: all .54s ease;
 }
-
-.card-back, 
+ 
 .card-front {
     box-shadow: 0 0px 0px var(--very-dark-violet),
     0 0px 0px var(--very-dark-violet),
@@ -114,41 +112,34 @@ picture {
 }
 
 @media screen and (min-width:768px) {
-    .cards {
-        top: 10%;
-        left: 24%;
-    }
     .cards picture > img {
-        height: 14rem;
+        height: 20rem;
+        width: max-content;
     }
 
     .card-front {
-        top: 8rem;
+        top: 11.7rem;
     }
 
     .card-logo {
-        top: 9rem;
-        left: -11rem;
+        top: 13rem;
+        left: -14rem;
+        width: 35rem;
+    }
+
+    .card-logo img {
+        max-width: 9rem;
     }
 
     .card-front-text {
-        margin-top: 2rem;
-        left: 8.5rem;
+        margin-top: 4rem;
+        left: 11rem;
         font-size: 1.9rem;
     }
 
     .card-details {
         margin-top: 2rem;
         font-size: 1rem;
-    }
-
-    .cvc {
-        top: 6.2rem;
-        font-size: 1.5rem;
-        right: 3rem;
-    }
-    .form-wrapper{
-        padding: 13rem 0;
     }
 
 }
@@ -210,24 +201,36 @@ picture {
     }
 }
 
-@media screen and (min-width:1024px) and (max-height:672px){
-    .cards{
-        top: -15%;
-        left: 18%;
+@media screen and (min-width:1024px) and (max-height:600px){
+
+    .cards picture > img {
+        height: 14rem;
+    }
+    .card-front{
+        top: 7rem;
     }
 
-    .card-back {
-        top: 23rem;
+    .card-logo {
+        top: 8rem;
+        left: -22rem;
     }
 
-    .cvc {
-        top: 28.3rem;
+    .card-logo img{
+        max-width: 6rem;
     }
 
-
-    .form-wrapper{
-        padding: 3rem 8rem;
+    .card-front-text {
+        left: 12rem;
     }
+
+    .card-details {
+        place-content: space-around;
+    }
+
+    .card-details p:first-child{
+        margin-left: -8rem;
+    }
+
 }
 
 @media screen and (min-width:1280px) {
@@ -238,76 +241,76 @@ picture {
 
     .card-logo {
         top: 3rem;
-        left: -23rem;
+        left: -26rem;
     }
 
     .cards picture > img{
-        height: 13.5rem;
+        height: 17rem;
     }
 
     .card-front-text {
-        left: 8rem;
+        left: 11rem;
+        top: 4rem;
+        font-size: 1.8rem;
     }
 
-    .card-back {
-        left: -11rem;
+    .card-details{
+        place-content: space-around;
+        font-size: 1rem;
     }
 
-    .cvc {
-        left: 8.5rem;
-        top: 24.8rem;
+    .card-details p:first-child {
+        margin-left: -7rem;
     }
 
-    .form-wrapper {
-        padding: 0 14rem;
-    }
 }
 
 @media screen and (min-height:1366px) {
+    .cards picture > img {
+        height: 16rem;
+        width: max-content;
+    }
     .card-front{
         top: 2rem;
-        left: -11rem;
+        left: -5rem;
     }
 
     .card-logo{
         top: 3rem;
-        left: -18.5rem;
+        left: -17rem;
     }
 
-    .card-back {
-        top: 33rem;
-        left: -8rem;
+    .card-front-text {
+        left: 11rem;
+        top: 3rem;
     }
 
-    .cvc {
-        top:38.4rem;
-        left: 9.5rem;
+    .card-details{
+        place-content: space-around;
     }
 
-    .form-wrapper{
-        padding: 0rem 7rem;
+    .card-details p:first-child {
+        margin-left: -7.5rem;
     }
+
 }
 
 @media screen and (min-height:1368px) and (min-width:912px) {
+    .cards picture > img {
+        height: 20rem;
+        width: max-content;
+    }
+
     .card-front {
-        top: 8rem;
-        left: -4.5rem;
+        top: 11.4rem;
+        left: -5.5rem;
     }
 
     .card-logo {
-        top: 9.5rem;
-        left: -13rem;
+        top: 12.5rem;
+        left: -17rem;
     }
 
-    .cvc {
-        top: 6rem;
-        left: 19.9rem;
-    }
-
-    .form-wrapper {
-        padding: 15rem 8rem;
-    }
 }
 
 </style>
